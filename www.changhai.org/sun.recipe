@@ -15,7 +15,7 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
   __author__ = u'卢昌海'
   __version__ = '1.0'
   language = 'zh-CN'
-  pubisher = '卢昌海'
+  pubisher = u'卢昌海'
   description = u''
   category = 'Science, Chinese'
   remove_javascript = True
@@ -84,7 +84,7 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
              'date':''}))
 
       # 参考文献, etc
-      for post in soup.findAll('p', attrs={'class':'center'}):
+      for post in table.findAll('p', attrs={'class':'center'}):
         for a in post.findAll('a', href=True):
           title = self.tag_to_string(a)
           url = a['href']

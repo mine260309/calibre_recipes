@@ -5,16 +5,17 @@ import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipeMineTest(BasicNewsRecipe):
-
-  title          = u'寻找太阳系的疆界'
-  INDEX = 'http://www.changhai.org/articles/science/astronomy/outer_planets/'
-  #title = u'太阳的故事'
-  #INDEX = 'http://www.changhai.org/articles/science/astronomy/sun/index.php'
+  """
+    Recipe for download Riemann 猜想漫谈
+    http://www.changhai.org/articles/science/mathematics/riemann_hypothesis/
+  """
+  title = u'Riemann 猜想漫谈'
+  INDEX = 'http://www.changhai.org/articles/science/mathematics/riemann_hypothesis/'
   
   __author__ = u'卢昌海'
   __version__ = '1.0'
   language = 'zh-CN'
-  pubisher = '卢昌海'
+  pubisher = u'卢昌海'
   description = u''
   category = 'Science, Chinese'
   remove_javascript = True
@@ -47,7 +48,7 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
         req = mechanize.Request( url, headers = { 'Referer': self.INDEX, })
         return orig_open_novisit(req)
       br.open_novisit = my_open_no_visit
-      br.set_debug_http(True)
+      #br.set_debug_http(True)
       self._cachedBrowser = br
     return br
 
@@ -66,9 +67,9 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
     feed_title = self.tag_to_string(soup.find('title'))
     self.log.debug("Feed Title: " + feed_title)
     
-    for table in soup.findAll('table', attrs={'class':'inside-article-noborder'}):
+    for table in soup.findAll('table', attrs={'class':'inside-article'}):
       # Main articles
-      for post in table.findAll('td'):
+      for post in table.findAll('li'):
         a = post.find('a', href=True)
         title = self.tag_to_string(post)
         url = a['href']
@@ -82,14 +83,14 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
              'description':'',
              'date':''}))
 
-      # 术语简介 etc
-      for post in soup.findAll('p', attrs={'class':'center'}):
+      # 参考文献, etc
+      for post in table.findAll('p', attrs={'class': ['center', 'noindent']}):
         for a in post.findAll('a', href=True):
           title = self.tag_to_string(a)
           url = a['href']
           self.log.debug("Article title and url: ")
           self.log.debug(title + ": " + url)
-          url = url + a['href']
+          url = self.INDEX + a['href']
           articles.append((
             {'title':title,
              'url':url,

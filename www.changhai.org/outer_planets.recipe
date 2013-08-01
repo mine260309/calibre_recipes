@@ -9,13 +9,13 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
     Recipe for download 寻找太阳系的疆界
     http://www.changhai.org/articles/science/astronomy/outer_planets/
   """
-  title          = u'寻找太阳系的疆界'
+  title = u'寻找太阳系的疆界'
   INDEX = 'http://www.changhai.org/articles/science/astronomy/outer_planets/'
   
   __author__ = u'卢昌海'
   __version__ = '1.0'
   language = 'zh-CN'
-  pubisher = '卢昌海'
+  pubisher = u'卢昌海'
   description = u''
   category = 'Science, Chinese'
   remove_javascript = True
