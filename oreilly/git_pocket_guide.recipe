@@ -4,34 +4,30 @@
 import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipeMineTest(BasicNewsRecipe):
+class AdvancedUserRecipeOReillyGitPocketGuide(BasicNewsRecipe):
   """
-    Recipe for download 太阳的故事
-    http://www.changhai.org/articles/science/astronomy/sun/
+    Recipe for download Git Pocket Guide
+    http://chimera.labs.oreilly.com/books/1230000000561/index.html
   """
-  title = u'太阳的故事'
-  INDEX = 'http://www.changhai.org/articles/science/astronomy/sun/'
+  title = u'Git Pocket Guide'
+  INDEX = 'http://chimera.labs.oreilly.com/books/1230000000561/index.html'
+  INDEX_PATH = 'http://chimera.labs.oreilly.com/books/1230000000561/'
   
-  __author__ = u'卢昌海'
+  __author__ = u'Richard E. Silverman'
   __version__ = '1.0'
   language = 'zh-CN'
-  pubisher = u'卢昌海'
+  pubisher = u'O\'Reilly'
   description = u''
-  category = 'Science, Chinese'
+  category = 'Computer, English'
   remove_javascript = True
   use_embedded_content = False
   no_stylesheets = True
   encoding = 'UTF-8'
   conversion_options = {'linearize_tables':True}
   keep_only_tags = [
-    dict(name='table', attrs={'id':['main-body']}),
-  ]
-
-  remove_tags = [
-    dict(name='p', attrs={'class':['left', 'right']}),
-  ]
-  remove_tags_after = [
-    dict(name='p', attrs = {'class' : ['article-date-claim']}),
+    dict(name='header'),
+    dict(name='section', attrs={'id':['preface']}),
+    dict(name='section', attrs={'class':['chapter']})
   ]
 
   _cachedBrowser = None
@@ -45,12 +41,12 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
       br = BasicNewsRecipe.get_browser(self)
       orig_open_novisit = br.open_novisit
       def my_open_no_visit(url, **kwargs):
-        req = mechanize.Request( url, headers = { 'Referer': self.INDEX, })
+        req = mechanize.Request( url, headers = { 'Referer': self.INDEX_PATH, })
         return orig_open_novisit(req)
       br.open_novisit = my_open_no_visit
       #br.set_debug_http(True)
       self._cachedBrowser = br
-    return self._cachedBrowser
+    return br
 
   def clone_browser(self, br):
     if self._cachedBrowser is None:
@@ -67,35 +63,22 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
     feed_title = self.tag_to_string(soup.find('title'))
     self.log.debug("Feed Title: " + feed_title)
     
-    for table in soup.findAll('table', attrs={'class':'inside-article'}):
+    for table in soup.findAll('div', attrs={'class':'toc'}):
       # Main articles
-      for post in table.findAll('li'):
+      for post in table.findAll('span'):
         a = post.find('a', href=True)
         title = self.tag_to_string(post)
-        url = a['href']
-        if "#" not in url:
-          self.log.debug("Article title and url: ")
-          self.log.debug(title + ": " + url)
-          url = self.INDEX + url
-          articles.append((
-            {'title':title,
-             'url':url,
-             'description':'',
-             'date':''}))
-
-      # 参考文献, etc
-      for post in table.findAll('p', attrs={'class':'center'}):
-        for a in post.findAll('a', href=True):
-          title = self.tag_to_string(a)
+        if a:
           url = a['href']
-          self.log.debug("Article title and url: ")
-          self.log.debug(title + ": " + url)
-          url = self.INDEX + a['href']
-          articles.append((
-            {'title':title,
-             'url':url,
-             'description':'',
-             'date':''}))
+          if url is not None and "#" not in url:
+            self.log.debug("Article title and url: ")
+            self.log.debug(title + ": " + url)
+            url = self.INDEX_PATH + url
+            articles.append((
+              {'title':title,
+               'url':url,
+               'description':'',
+               'date':''}))
     if articles:
       feeds.append((feed_title, articles))
     return feeds

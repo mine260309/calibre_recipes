@@ -50,7 +50,7 @@ class AdvancedUserRecipeMineTest(BasicNewsRecipe):
       br.open_novisit = my_open_no_visit
       #br.set_debug_http(True)
       self._cachedBrowser = br
-    return br
+    return self._cachedBrowser
 
   def clone_browser(self, br):
     if self._cachedBrowser is None:
