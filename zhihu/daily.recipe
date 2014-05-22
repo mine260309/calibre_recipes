@@ -12,18 +12,22 @@ import re
 
 class Zhihu(BasicNewsRecipe):
 
-    INDEX = 'http://news.at.zhihu.com/api/1.1/news/latest'
+    INDEX = 'http://news.at.zhihu.com/api/1.2/news/latest'
     
     title = u'知乎日报'
     language = 'zh'
-    __author__ = "Yuanxuan Wang"
+    __author__ = "Lei YU"
     description = (u'知乎日报')
     no_stylesheets = True
     needs_subscription = False
-    extra_css      = '''
-      .headline { font-size: x-large; }
-      .content { word-wrap: break-word; line-height: 1.6em; }
-    '''
+
+    keep_only_tags = [
+      dict(name='div', attrs={'class':['question', 'headline']}),
+    ]
+
+    remove_tags = [
+      dict(name='div', attrs={'class':['view-more']}),
+    ]
 
     def parse_index(self):
         opener = getattr(self.browser, 'open_novisit', self.browser.open)
@@ -47,6 +51,6 @@ class Zhihu(BasicNewsRecipe):
             'title': item['title'],
             'date': '',
             'description': '',
-            'url': item['items'][0]['url']
+            'url': item['share_url']
         }
 
