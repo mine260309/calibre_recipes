@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+__copyright__ = 'Yuanxuan Wang <zellux at gmail dot com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from collections import OrderedDict
+from contextlib import nested, closing
+
+import json
+import re
+
+class Zhihu(BasicNewsRecipe):
+
+    feeds = [
+      (u'虎嗅看点', u'http://www.huxiu.com/rss/1.xml'),
+    ]
+    title = u'虎嗅看点'
+    language = 'zh'
+    __author__ = "Lei YU"
+    description = (u'虎嗅看点')
+    no_stylesheets = True
+    needs_subscription = False
+    oldest_article = 1
+
+    keep_only_tags = [
+      dict(name='div', attrs={'class':['clearfix neirong']}),
+    ]
+
+    remove_tags = [
+      dict(name='div', attrs={'class':['clearfix read-later toggle-tooltip', 'neirong-shouquan', 'setFont']}),
+      dict(name='a', attrs={'class':['a_self pull-right btn btn-primary askAuthor', 'a_self pull-right btn btn-primary add-collect']})
+    ]
+    
+    remove_tags_after = [
+      dict(name='div', attrs={'class':['neirong-box']}),
+    ]
+
