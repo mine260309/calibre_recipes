@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+__copyright__ = 'mine260309 <mine260309 at gmail dot com>'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from collections import OrderedDict
+from contextlib import nested, closing
+
+import re
+
+class JianshuWeekly(BasicNewsRecipe):
+
+    INDEX = 'http://jianshu.io/top/weekly'
+    ARTICLE_INDEX = 'http://jianshu.io'
+
+    title = u'简书每周热门'
+    language = 'zh'
+    __author__ = "Lei YU"
+    description = (u'简书每周热门')
+    no_stylesheets = True
+    needs_subscription = False
+
+    keep_only_tags = [
+      dict(name='div', attrs={'class':['article']}),
+    ]
+
+    remove_tags = [
+      dict(name='div', attrs={'class':['hide']}),
+    ]
+
+    def parse_index(self):
+
+        articles = []
+        feeds = []
+
+        soup = self.index_to_soup(self.INDEX)
+        feed_title = self.tag_to_string(soup.find('title'))
+        self.log.debug("Feed Title: " + feed_title)
+        
+        for ul in soup.findAll('ul', attrs={'class':'top-notes'}):
+          # Main articles
+          for post in ul.findAll('li'):
+            h4 = post.find('h4')
+            a = h4.find('a', href=True)
+            title = self.tag_to_string(a)
+            url = a['href']
+            if "#" not in url:
+              self.log.debug("Article title and url: ")
+              self.log.debug(title + ": " + url)
+              url = self.ARTICLE_INDEX + url
+              articles.append((
+                {'title':title,
+                 'url':url,
+                 'description':'',
+                 'date':''}))
+        if articles:
+          feeds.append((feed_title, articles))
+        return feeds
+
