@@ -30,6 +30,7 @@ class Zhihu(BasicNewsRecipe):
     ]
 
     def parse_index(self):
+        found_image = False
         opener = getattr(self.browser, 'open_novisit', self.browser.open)
         with closing(opener(self.INDEX)) as f:
             results = f.read()
@@ -40,10 +41,18 @@ class Zhihu(BasicNewsRecipe):
         top_stories = []
         news = []
         json_obj = json.loads(results)
-        for item in json_obj['news']:
-            news.append(self.parse_article(item))
         for item in json_obj['top_stories']:
+            if not found_image and item['image']:
+                print 'Use cover url: ' + item['image']
+                self.cover_url = item['image']
+                found_image = True
             top_stories.append(self.parse_article(item))
+        for item in json_obj['news']:
+            if not found_image and item['image']:
+                print 'Use cover url: ' + item['image']
+                self.cover_url = item['image']
+                found_image = True
+            news.append(self.parse_article(item))
         return [(u'News', news), (u'Top Stories', top_stories)]
 
     def parse_article(self, item):

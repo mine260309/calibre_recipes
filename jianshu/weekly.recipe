@@ -38,6 +38,11 @@ class JianshuWeekly(BasicNewsRecipe):
         feed_title = self.tag_to_string(soup.find('title'))
         self.log.debug("Feed Title: " + feed_title)
         
+        for div in soup.findAll('div', attrs={'class':'cover-img'}):
+          style = div['style']
+          temp = style.split('(')[1]
+          self.cover_url = temp.rstrip(')')
+
         for ul in soup.findAll('ul', attrs={'class':'top-notes'}):
           # Main articles
           for post in ul.findAll('li'):
