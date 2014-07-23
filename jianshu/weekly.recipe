@@ -8,7 +8,53 @@ from collections import OrderedDict
 from contextlib import nested, closing
 
 import re
+import os, os.path
 
+class SaveArticle:
+    CUR_DIR = os.environ['PWD']
+    ARTICLES_FILE = '%s/SavedArticles.txt' % CUR_DIR
+    IsArticlesLoaded = False
+    #SavedArticles = []
+    SavedUrls = []
+
+    def LoadArticles(self):
+        print 'To load %s' % self.ARTICLES_FILE
+        if not self.IsArticlesLoaded:
+            try:
+                lines = filter(bool,
+                               [line.strip() for line
+                                in open(self.ARTICLES_FILE)])
+                for line in lines:
+                    temp = line.split(' ')
+                    url = temp[len(temp)-1]
+                    self.SavedUrls.append(url)
+            except Exception as e:
+                print e
+            self.IsArticlesLoaded = True
+            print 'All aritcles: ' + str(self.SavedUrls)
+
+    def SaveArticle(self, title, url):
+        '''
+        Save the artitle's title and url,
+        so that they can be filtered in the future
+        '''
+        self.LoadArticles()
+        if url in self.SavedUrls:
+            print 'artitle ' + title + 'already saved'
+            return
+        line = title + ' ' + url
+        with open(self.ARTICLES_FILE, "a") as myfile:
+            myfile.write('\n')
+            myfile.write(line)
+            print 'added article: ' + title
+        print 'Saved to %s' % self.ARTICLES_FILE
+
+    def IsArticleSaved(self, title, url):
+        self.LoadArticles()
+        print 'url: %s' % url
+        print 'SavedUrls: %s' % str(self.SavedUrls)
+        return url in self.SavedUrls
+    
 class JianshuWeekly(BasicNewsRecipe):
 
     INDEX = 'http://jianshu.io/top/weekly'
@@ -20,6 +66,8 @@ class JianshuWeekly(BasicNewsRecipe):
     description = (u'简书每周热门')
     no_stylesheets = True
     needs_subscription = False
+
+    saveArticle = SaveArticle()
 
     keep_only_tags = [
       dict(name='div', attrs={'class':['article']}),
@@ -54,12 +102,19 @@ class JianshuWeekly(BasicNewsRecipe):
               self.log.debug("Article title and url: ")
               self.log.debug(title + ": " + url)
               url = self.ARTICLE_INDEX + url
+              if self.saveArticle.IsArticleSaved(title, url):
+                  # Skip saved article
+                  continue
               articles.append((
                 {'title':title,
                  'url':url,
                  'description':'',
                  'date':''}))
+              self.saveArticle.SaveArticle(title, url)
+
         if articles:
           feeds.append((feed_title, articles))
+        else:
+          raise Exception('No article, abort')
         return feeds
 
