@@ -57,8 +57,8 @@ class SaveArticle:
     
 class JianshuWeekly(BasicNewsRecipe):
 
-    INDEX = 'http://jianshu.io/top/weekly'
-    ARTICLE_INDEX = 'http://jianshu.io'
+    INDEX = 'http://www.jianshu.com/top/weekly'
+    ARTICLE_INDEX = 'http://www.jianshu.com'
 
     title = u'简书每周热门'
     language = 'zh'
@@ -91,7 +91,7 @@ class JianshuWeekly(BasicNewsRecipe):
           temp = style.split('(')[1]
           self.cover_url = temp.rstrip(')')
 
-        for ul in soup.findAll('ul', attrs={'class':'top-notes'}):
+        for ul in soup.findAll('ul', attrs={'class':'top-notes ranking'}):
           # Main articles
           for post in ul.findAll('li'):
             h4 = post.find('h4')
