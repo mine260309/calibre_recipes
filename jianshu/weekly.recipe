@@ -91,7 +91,7 @@ class JianshuWeekly(BasicNewsRecipe):
           temp = style.split('(')[1]
           self.cover_url = temp.rstrip(')')
 
-        for ul in soup.findAll('ul', attrs={'class':'article-list top-notes'}):
+        for ul in soup.findAll('ul', attrs={'class':re.compile("^article-list.*")}):
           # Main articles
           for post in ul.findAll('li'):
             h4 = post.find('h4')
